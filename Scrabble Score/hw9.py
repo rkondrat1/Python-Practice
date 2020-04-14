@@ -2,6 +2,9 @@
 @author: rachael kondrat
 
 from cs115 import map, reduce
+
+reduce change hi
+
 '''
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

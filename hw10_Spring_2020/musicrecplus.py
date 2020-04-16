@@ -48,6 +48,7 @@ def getPreferences(userName, userMap):
    
     userMap[userName] = prefs
     prefs.sort()
+    saved = saveUserPreferences(userName, prefs, userMap, PREF_FILE)
     return prefs
 
 

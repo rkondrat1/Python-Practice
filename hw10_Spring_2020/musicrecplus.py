@@ -48,7 +48,6 @@ def getPreferences(userName, userMap):
    
     userMap[userName] = prefs
     prefs.sort()
-    saved = saveUserPreferences(userName, prefs, userMap, PREF_FILE)
     return prefs
 
 
@@ -66,6 +65,66 @@ def getRecommendations(currUser, prefs, userMap):
     recommendations = drop(prefs, userMap[bestUser])
     return recommendations
 
+
+
+def mostPopular():
+    '''print the artist that is liked by the most users.
+    if there is a tie, print all artists with the most likes'''
+    userList = []
+    newUserList = []
+    artistList = []
+
+    baseListofUsers = loadUsers(PREF_FILE)
+
+    likeList = []
+    mostLikes = 0
+    mostPopular = []
+    
+    #load into userList the list of users
+    for users in loadUsers(PREF_FILE).keys():
+        userList.append(users)
+        
+    #first exclude users with a $
+    for users in userList:
+        if users[len(users)-1] != '$':
+            newUserList += [users]
+
+    #second make a list of artists w/o users
+    # i am comparing newUserList to the base list, since that has the artists
+    #then adding the artists not attached to a private user to artistList
+    for users in newUserList:
+        if users in baseListofUsers:
+            artistList += baseListofUsers[users]
+
+    #next try to get the number of likes intoa list w/ the artist
+    #the list will have [artist, likes]
+    for artists in artistList:
+        for item in likeList:
+            if artists == item[0]: #item[0] is the artist
+                item[1] +=1 #item[1] is the like number
+                break
+            else:
+                likeList += [[artist,1]]
+
+    #sort through likeList to find the artist with the most likes
+    for item in likeList:
+        if item[1] == mostLikes:
+            mostPopular = [item[0]]
+            mostLikes = item[1]
+            mostPopular.sort()
+        if item[1] > mostLikes:
+            mostPopular += [item[0]]
+            mostPopular.sort()
+            
+    #return the most popular artists
+        #also account for if there are not top artists 
+    for item in mostPopular:
+        if len(mostPopular) == 0:
+            return 'Sorry no artists found'
+            
+        else:
+            return item
+    
 def findBestUser(currUser, prefs, userMap):
     '''Find the user whose tastes are closest to the current user.
     Return the best user's name ( a string) '''
@@ -183,7 +242,7 @@ def main():
         elif option == 'r':
             return getRecommendations()
         elif option == 'p':
-            return MostPopular()
+            return mostPopular()
         elif option == 'h':
             return HowPopular()
         elif option == 'm':

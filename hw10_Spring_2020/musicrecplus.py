@@ -159,14 +159,25 @@ def main():
     ''' The main recommendation function '''
 FirstOp=RunPreferences(userName, UserMap)
     while option in [e,r,p,h,m,q]:
-        Option = input('''   \n Enter a letter to choose an option : \n
+        option = input('''   \n Enter a letter to choose an option : \n
         e - Enter preferences \n
         r - Get recommendations \n
         p - Show most popular artists \n
         h - How popular is the most popular \n
         m - Which user has the most likes \n
-        q - Save and quit''')       
-
+        q - Save and quit''')
+        elif option == 'e':
+            return EnterPreferences(userName, userMap)
+        elif option == 'r':
+            return getRecommendations()
+        elif option == 'p':
+            return MostPopular()
+        elif option == 'h':
+            return HowPopular()
+        elif option == 'm':
+            return MostLikes()
+        else:
+            break
 #STARTING CODE SHOULD RUN BEFORE MAIN
 userMap = loadUsers(PREF_FILE)
 print('Welcome to the music recommender')

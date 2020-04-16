@@ -39,7 +39,13 @@ def getPreferences(userName, userMap):
         additional preferences.  If the user is new,
         it simply asks the user for her preferences. '''
     newPref = ""
-    if userName in userMap:
+    prefs = []
+    userMap[userName] = prefs
+
+    print('Please enter anothe artist or band that you like, or just press enter')
+    newPref = input('to see your recommendations: ')
+        
+    '''if userName in userMap:
         prefs = userMap[userName]
         print('I see that you have used the system before.')
         print('Your music preferences include:')
@@ -50,13 +56,16 @@ def getPreferences(userName, userMap):
     else:
         prefs = []
         print('I see that you are a new user')
-        newPref = input('Please enter the name of an artist you like: ')
+        newPref = input('Please enter the name of an artist you like: ')'''
+
     while newPref != '':
         prefs.append(newPref.strip().title())
         print('Please enter another artist or band that you like or just press Enter:')
         newPref = input('to see your recommendations:')
+        
     # Always keep the lists in sorted order for ease of
     # comparison
+    userMap[userName] = prefs
     prefs.sort()
     return prefs
 

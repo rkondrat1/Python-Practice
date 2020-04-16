@@ -31,21 +31,25 @@ def loadUsers(fileName):
     file.close()
     return userDict
 
-def EnterPreferences(userName, userMap):
+def getPreferences(userName, userMap):
     ''' Allows user to enter preferences. Returns user to menu promptly after. '''
+    newPref = ""
     prefs = []
-    newPref = input('Enter an artist that you like (Enter to finish:)')
-    saveUserPreferences(userName, prefs, userMap, PREF_FILE)
-    while newPref != '':
+    userMap[userName] = prefs
+
+    print("Enter an artist that you like (Enter to finish): ")
+    newPref = input("")
+        
+    while newPref != "":
         prefs.append(newPref.strip().title())
-            print('Please enter another artist or band that you like or just press Enter to see Menu:')
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')
+        print("Enter an artist that you like (Enter to finish):")
+        newPref = input("")
+        
+   
+    userMap[userName] = prefs
+    prefs.sort()
+    return prefs
+
 
 
 def getRecommendations(currUser, prefs, userMap):
@@ -157,17 +161,24 @@ def RunPreferences(userName, UserMap):
   
 def main():
     ''' The main recommendation function '''
-FirstOp=RunPreferences(userName, UserMap)
-    while option in [e,r,p,h,m,q]:
-        option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')
-        elif option == 'e':
-            return EnterPreferences(userName, userMap)
+
+    #STARTING CODE SHOULD RUN BEFORE MAIN
+    userMap = loadUsers(PREF_FILE)
+    print('Welcome to the music recommender')
+    userName = input('Please enter your name ( put a $ symbol after your name if you wish your preferences to remain private ): ')
+    
+
+    menuLoop = True
+    while menuLoop == True:
+        option = input('\n Enter a letter to choose an option :' '\n'
+        'e - Enter preferences' '\n'
+        'r - Get recommendations' '\n'
+        'p - Show most popular artists' '\n'
+        'h - How popular is the most popular' '\n'
+        'm - Which user has the most likes' '\n'
+        'q - Save and quit' '\n ')
+        if option == 'e':
+            prefs = getPreferences(userName, userMap)
         elif option == 'r':
             return getRecommendations()
         elif option == 'p':
@@ -178,11 +189,6 @@ FirstOp=RunPreferences(userName, UserMap)
             return MostLikes()
         else:
             break
-#STARTING CODE SHOULD RUN BEFORE MAIN
-userMap = loadUsers(PREF_FILE)
-print('Welcome to the music recommender')
-userName = input('Please enter your name ( put a $ symbol after your name if you wish your preferences to remain private ): ')
-  
 
 if __name__ == "__main__": main()
 

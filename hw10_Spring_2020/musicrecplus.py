@@ -31,22 +31,43 @@ def loadUsers(fileName):
     file.close()
     return userDict
 
-def EnterPreferences(userName, userMap):
-    ''' Allows user to enter preferences. Returns user to menu promptly after. '''
+def getPreferences(userName, userMap):
+    ''' Returns a list of the user's preferred artists.
+        If the system already knows about the user,
+        it gets the preferences out of the userMap
+        dictionary and then asks the user if she has
+        additional preferences.  If the user is new,
+        it simply asks the user for her preferences. '''
+    newPref = ""
     prefs = []
-    newPref = input('Enter an artist that you like (Enter to finish:)')
-    saveUserPreferences(userName, prefs, userMap, PREF_FILE)
+    userMap[userName] = prefs
+
+    print('Please enter anothe artist or band that you like, or just press enter')
+    newPref = input('to see your recommendations: ')
+        
+    '''if userName in userMap:
+        prefs = userMap[userName]
+        print('I see that you have used the system before.')
+        print('Your music preferences include:')
+        for artists in prefs:
+            print(artists)
+        print('Please enter anothe artist or band that you like, or just press enter')
+        newPref = input('to see your recommendations: ')
+    else:
+        prefs = []
+        print('I see that you are a new user')
+        newPref = input('Please enter the name of an artist you like: ')'''
+
     while newPref != '':
         prefs.append(newPref.strip().title())
-            print('Please enter another artist or band that you like or just press Enter to see Menu:')
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')
-
+        print('Please enter another artist or band that you like or just press Enter:')
+        newPref = input('to see your recommendations:')
+        
+    # Always keep the lists in sorted order for ease of
+    # comparison
+    userMap[userName] = prefs
+    prefs.sort()
+    return prefs
 
 def getRecommendations(currUser, prefs, userMap):
     '''Gets recommendations for a user (currUser) based
@@ -129,49 +150,33 @@ def saveUserPreferences(userName, prefs, userMap, fileName):
         file.write(toSave)
     file.close()
 
-def RunPreferences(userName, UserMap):
-    if userName in UserMap:
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')  
-    else:
-        prefs = []
-        print('I see that you are a new user')
-        newPref = input('Please enter the name of an artist you like: ')
-        saveUserPreferences(userName, prefs, userMap, PREF_FILE)
-        while newPref != '':
-            prefs.append(newPref.strip().title())
-            print('Please enter another artist or band that you like or just press Enter to see Menu:')
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')  
-        
-  
+
 def main():
     ''' The main recommendation function '''
-FirstOp=RunPreferences(userName, UserMap)
-    while option in [e,r,p,h,m,q]:
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')       
+    userMap = loadUsers(PREF_FILE)
+    print('Welcome to the music recommender')
 
-#STARTING CODE SHOULD RUN BEFORE MAIN
-userMap = loadUsers(PREF_FILE)
-print('Welcome to the music recommender')
-userName = input('Please enter your name ( put a $ symbol after your name if you wish your preferences to remain private ): ')
-  
+    userName = input('Please enter your name:')
+    print('Welcome', userName)
+
+    if userName not in userMap:
+        prefs = getPreferences(userName, userMap)
+        saveUserPreferences(userName, prefs, userMap, PREF_FILE)
+    else:
+        pref = userMap[userName]
+
+    recs = getRecommendations(userName, prefs, userMap)
+
+    #print user recommendations
+    if len(recs)==0:
+        print('I have no recommendations')
+    else:
+        print(userName + ',' , 'based on the users I currently know about, you may like:')
+        for artists in recs:
+            print(artist)
+        print('i hope you enjoy them')
+
+    saveUserPreferences(userName, prefs, userMap, PREF_FILE)
 
 if __name__ == "__main__": main()
 

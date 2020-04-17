@@ -65,21 +65,19 @@ def getRecommendations(currUser, prefs, userMap):
     recommendations = drop(prefs, userMap[bestUser])
     return recommendations
 
-
-
 def mostPopular():
     '''print the artist that is liked by the most users.
     if there is a tie, print all artists with the most likes'''
     userList = []
+    memo = loadUsers(PREF_FILE)
+
     newUserList = []
     artistList = []
-
-    baseListofUsers = loadUsers(PREF_FILE)
 
     likeList = []
     mostLikes = 0
     mostPopular = []
-    memo = loadUsers(PREF_FILE)
+    
     
     #load into userList the list of users
     for users in memo.keys():
@@ -94,8 +92,8 @@ def mostPopular():
     # i am comparing newUserList to the base list, since that has the artists
     #then adding the artists not attached to a private user to artistList
     for users in newUserList:
-        if users in baseListofUsers:
-            artistList += baseListofUsers[users]
+        if users in memo:
+            artistList += memo[users]
 
     #next try to get the number of likes intoa list w/ the artist
     #the list will have [artist, likes]
@@ -104,59 +102,47 @@ def mostPopular():
             likeList += [[artists,1]]
         else:
             for item in likeList:
-                if artists == item[0]: #item[0] is the artist
+                if artists != item[0]: #item[0] is the artist
+                    likeList += [[artists,1]]
+                else:
                     item[1] +=1 #item[1] is the like number
                     break
-                else:
-                    likeList += [[artists,1]]
+                    
 
     #sort through likeList to find the artist with the most likes
-    '''
-        for item in likeList:
-            if term[1] > mostLikes:
-                mostLikes = term[1]
-            print(mostLikes)
-    '''
+    
     for term in likeList:
-        if term[1] > mostLikes:
-            mostLikes = term[1]
+        if term[1] <= mostLikes:
             mostPopular += [item[0]]
             mostPopular.sort()
         else:
+            mostLikes = term[1]
             mostPopular += [item[0]]
             mostPopular.sort()
-    '''
-    for item in likeList:
-        if item[1] == mostLikes:
-            mostPopular = [item[0]]
-            mostLikes = item[1]
-            mostPopular.sort()
-        if item[1] > mostLikes:
-            mostPopular += [item[0]]
-            mostPopular.sort()
-     '''       
+            
+        
     #return the most popular artists
     #also account for if there are not top artists 
     for item in mostPopular:
         if len(mostPopular) != 0:
-            return 'Sorry no artists found'
-            
-        else:
             return item
+        else:
+            return 'Sorry no artists found'
 
 def howPopular():
     '''returns the number of likes the most popluar artists received'''
 
+    #I just copied mostPop to get a list w/ [arist,likes]
     userList = []
+    memo = loadUsers(PREF_FILE)
+
     newUserList = []
     artistList = []
-
-    baseListofUsers = loadUsers(PREF_FILE)
 
     likeList = []
     mostLikes = 0
     mostPopular = []
-    memo = loadUsers(PREF_FILE)
+    
     
     #load into userList the list of users
     for users in memo.keys():
@@ -171,21 +157,22 @@ def howPopular():
     # i am comparing newUserList to the base list, since that has the artists
     #then adding the artists not attached to a private user to artistList
     for users in newUserList:
-        if users in baseListofUsers:
-            artistList += baseListofUsers[users]
+        if users in memo:
+            artistList += memo[users]
 
-   #next try to get the number of likes intoa list w/ the artist
+    #next try to get the number of likes intoa list w/ the artist
     #the list will have [artist, likes]
     for artists in artistList:
         if likeList == []:
             likeList += [[artists,1]]
         else:
             for item in likeList:
-                if artists == item[0]: #item[0] is the artist
+                if artists != item[0]: #item[0] is the artist
+                    likeList += [[artists,1]]
+                else:
                     item[1] +=1 #item[1] is the like number
                     break
-                else:
-                    likeList += [[artists,1]]
+    
               
     #Make a list of artists with the most likes
     for term in likeList:
@@ -292,11 +279,10 @@ def RunPreferences(userName, UserMap):
 def main():
     ''' The main recommendation function '''
 
-    #STARTING CODE SHOULD RUN BEFORE MAIN
     userMap = loadUsers(PREF_FILE)
     print('Welcome to the music recommender')
-    userName = input('Please enter your name ( put a $ symbol after your name if you wish your preferences to remain private ): ')
-    
+    userName = input('Please enter your name. Put a $ symbol after your name if you wish your preferences to remain private ): ')
+    print("Welcome", userName)
 
     menuLoop = True
     while menuLoop == True:
@@ -310,13 +296,13 @@ def main():
         if option == 'e':
             prefs = getPreferences(userName, userMap)
         elif option == 'r':
-            return getRecommendations()
+            getRecommendations()
         elif option == 'p':
-            return mostPopular()
+            mostPopular()
         elif option == 'h':
-            return HowPopular()
+            howPopular()
         elif option == 'm':
-            return MostLikes()
+            mostLikes()
         else:
             break
 

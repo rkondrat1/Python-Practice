@@ -79,9 +79,10 @@ def mostPopular():
     likeList = []
     mostLikes = 0
     mostPopular = []
+    memo = loadUsers(PREF_FILE)
     
     #load into userList the list of users
-    for users in loadUsers(PREF_FILE).keys():
+    for users in memo.keys():
         userList.append(users)
         
     #first exclude users with a $
@@ -99,14 +100,32 @@ def mostPopular():
     #next try to get the number of likes intoa list w/ the artist
     #the list will have [artist, likes]
     for artists in artistList:
-        for item in likeList:
-            if artists == item[0]: #item[0] is the artist
-                item[1] +=1 #item[1] is the like number
-                break
-            else:
-                likeList += [[artist,1]]
+        if likeList == []:
+            likeList += [[artists,1]]
+        else:
+            for item in likeList:
+                if artists == item[0]: #item[0] is the artist
+                    item[1] +=1 #item[1] is the like number
+                    break
+                else:
+                    likeList += [[artists,1]]
 
     #sort through likeList to find the artist with the most likes
+    '''
+        for item in likeList:
+            if term[1] > mostLikes:
+                mostLikes = term[1]
+            print(mostLikes)
+    '''
+    for term in likeList:
+        if term[1] > mostLikes:
+            mostLikes = term[1]
+            mostPopular += [item[0]]
+            mostPopular.sort()
+        else:
+            mostPopular += [item[0]]
+            mostPopular.sort()
+    '''
     for item in likeList:
         if item[1] == mostLikes:
             mostPopular = [item[0]]
@@ -115,15 +134,66 @@ def mostPopular():
         if item[1] > mostLikes:
             mostPopular += [item[0]]
             mostPopular.sort()
-            
+     '''       
     #return the most popular artists
-        #also account for if there are not top artists 
+    #also account for if there are not top artists 
     for item in mostPopular:
-        if len(mostPopular) == 0:
+        if len(mostPopular) != 0:
             return 'Sorry no artists found'
             
         else:
             return item
+
+def howPopular():
+    '''returns the number of likes the most popluar artists received'''
+
+    userList = []
+    newUserList = []
+    artistList = []
+
+    baseListofUsers = loadUsers(PREF_FILE)
+
+    likeList = []
+    mostLikes = 0
+    mostPopular = []
+    memo = loadUsers(PREF_FILE)
+    
+    #load into userList the list of users
+    for users in memo.keys():
+        userList.append(users)
+        
+    #first exclude users with a $
+    for users in userList:
+        if users[len(users)-1] != '$':
+            newUserList += [users]
+
+    #second make a list of artists w/o users
+    # i am comparing newUserList to the base list, since that has the artists
+    #then adding the artists not attached to a private user to artistList
+    for users in newUserList:
+        if users in baseListofUsers:
+            artistList += baseListofUsers[users]
+
+   #next try to get the number of likes intoa list w/ the artist
+    #the list will have [artist, likes]
+    for artists in artistList:
+        if likeList == []:
+            likeList += [[artists,1]]
+        else:
+            for item in likeList:
+                if artists == item[0]: #item[0] is the artist
+                    item[1] +=1 #item[1] is the like number
+                    break
+                else:
+                    likeList += [[artists,1]]
+              
+    #Make a list of artists with the most likes
+    for term in likeList:
+        if term[1] > mostLikes:
+            mostLikes = term[1]
+    print(mostLikes - 1)
+
+    
     
 def findBestUser(currUser, prefs, userMap):
     '''Find the user whose tastes are closest to the current user.

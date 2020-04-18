@@ -51,6 +51,18 @@ def getPreferences(userName, userMap):
     return prefs
 
 
+def findBestUser(currUser, prefs, userMap):
+    '''Find the user whose tastes are closest to the current user.
+    Return the best user's name ( a string) '''
+    bestUser = None
+    bestScore = -1
+    print("Prefs is", prefs)
+    for user in userMap.keys():
+        score = numMatches(prefs, userMap[user])
+    if score > bestScore and currUser != user:
+        bestScore = score
+        bestUser = user
+    return bestUser
 
 def getRecommendations(currUser, prefs, userMap):
     '''Gets recommendations for a user (currUser) based
@@ -58,7 +70,13 @@ def getRecommendations(currUser, prefs, userMap):
     preferences in pref (a list). Returns a list of recommend
     artists.'''
 
+    #prefs = RunPreferences(currUser, userMap)
+
     bestUser = findBestUser(currUser, prefs, userMap)
+    
+    if bestUser == []:
+        print("no recommendations at this time")
+        
     print(userMap[bestUser])
     print(prefs)
     print(drop(prefs, userMap[bestUser]))
@@ -84,16 +102,16 @@ def mostPopular():
         userList.append(users)
         
     #first exclude users with a $
-    for users in userList:
-        if users[len(users)-1] != '$':
-            newUserList += [users]
+    for i in userList:
+        if i[len(i)-1] != '$' and len(i) != 0:
+            newUserList += [i]
 
     #second make a list of artists w/o users
     # i am comparing newUserList to the base list, since that has the artists
     #then adding the artists not attached to a private user to artistList
-    for users in newUserList:
-        if users in memo:
-            artistList += memo[users]
+    for user in newUserList:
+        if user in memo:
+            artistList += memo[user]
 
     #next try to get the number of likes intoa list w/ the artist
     #the list will have [artist, likes]
@@ -108,26 +126,25 @@ def mostPopular():
                     item[1] +=1 #item[1] is the like number
                     break
                     
-
     #sort through likeList to find the artist with the most likes
     
     for term in likeList:
-        if term[1] <= mostLikes:
+        if term[1] == mostLikes:
             mostPopular += [item[0]]
             mostPopular.sort()
-        else:
+        elif term[1] > mostLikes:
             mostLikes = term[1]
-            mostPopular += [item[0]]
+            mostPopular = [term[0]]
             mostPopular.sort()
             
         
     #return the most popular artists
     #also account for if there are not top artists 
-    for item in mostPopular:
+    for x in mostPopular:
         if len(mostPopular) != 0:
-            return item
+            print(x)
         else:
-            return 'Sorry no artists found'
+            print('Sorry no artists found')
 
 def howPopular():
     '''returns the number of likes the most popluar artists received'''
@@ -149,16 +166,16 @@ def howPopular():
         userList.append(users)
         
     #first exclude users with a $
-    for users in userList:
-        if users[len(users)-1] != '$':
-            newUserList += [users]
+    for i in userList:
+        if i[len(i)-1] != '$' and len(i) != 0:
+            newUserList += [i]
 
     #second make a list of artists w/o users
     # i am comparing newUserList to the base list, since that has the artists
     #then adding the artists not attached to a private user to artistList
-    for users in newUserList:
-        if users in memo:
-            artistList += memo[users]
+    for user in newUserList:
+        if user in memo:
+            artistList += memo[user]
 
     #next try to get the number of likes intoa list w/ the artist
     #the list will have [artist, likes]
@@ -178,22 +195,9 @@ def howPopular():
     for term in likeList:
         if term[1] > mostLikes:
             mostLikes = term[1]
-    print(mostLikes - 1)
+    print(mostLikes)
 
     
-    
-def findBestUser(currUser, prefs, userMap):
-    '''Find the user whose tastes are closest to the current user.
-    Return the best user's name ( a string) '''
-    bestUser = None
-    bestScore = -1
-    print("Prefs is", prefs)
-    for user in userMap.keys():
-        score = numMatches(prefs, userMap[user])
-    if score > bestScore and currUser != user:
-            bestScore = score
-            bestUser = user
-    return bestUser
 
 
 
@@ -221,6 +225,7 @@ def drop(list1, list2):
 
     return list3
 
+
 def numMatches(list1, list2):
     '''return the number of elements that match between
     two sorted lists'''
@@ -238,51 +243,85 @@ def numMatches(list1, list2):
                 j += 1
     return matches
 
-            
-    
-def saveUserPreferences(userName, prefs, userMap, fileName):
-    ''' Writes all of the user preferences to the file.
-        Returns nothing. '''
-    userMap[userName] = prefs
-    file = open(fileName, 'w')
-    for user in userMap:
-        toSave = str(user) + ':' + ','.join(userMap[user]) + '\n'
-        file.write(toSave)
-    file.close()
 
-def RunPreferences(userName, UserMap):
+def numMatches(list1, list2):
+    '''return the number of elements that match between
+    two sorted lists'''
+    matches = 0
+    i = 0
+    j = 0
+    while i < len(list1) and j < len(list2):
+        if list1[i] == list2[j]:
+                matches += 1
+                i += 1
+                j += 1
+        elif list1[i] < list2[j]:
+                i += 1
+        else:
+                j += 1
+    return matches
+
+def RunPreferences(userName, UserMap): #name 'userMap' is not defined
     if userName in UserMap:
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')  
+        return
     else:
         prefs = []
         print('I see that you are a new user')
         newPref = input('Please enter the name of an artist you like: ')
-        saveUserPreferences(userName, prefs, userMap, PREF_FILE)
-        while newPref != '':
-            prefs.append(newPref.strip().title())
-            print('Please enter another artist or band that you like or just press Enter to see Menu:')
-        Option = input('''   \n Enter a letter to choose an option : \n
-        e - Enter preferences \n
-        r - Get recommendations \n
-        p - Show most popular artists \n
-        h - How popular is the most popular \n
-        m - Which user has the most likes \n
-        q - Save and quit''')  
+    while newPref != '':
+        prefs.append(newPref.strip().title())
+        newPref = input('Please enter another artist or band that you like or just press Enter to see Menu:')
+    UserMap[userName] = prefs
+    return UserMap[userName]
+    
+
+def MostLikes(userMap):
+    '''Finds and returns the user/users with the highest number of preferred
+    artists.'''
+    XuserMap = filter(lambda x:'$' not in x, userMap.keys()) #filters non $ users
+    if len(XuserMap) == 0:
+        print('Sorry no user found.')
+    TopUser = [XuserMap[0]] #takes first user as base case
+    for user in XuserMap:
+        if len(userMap[user]) > len(userMap[TopUser[0]]): #replaces TopUser if more
+            TopUser = [user]
+        if len(userMap[user]) == len(userMap[TopUser[0]]) and user != TopUser[0]: #joins TopUser if equal?
+            TopUser.append(user)
+    TopUser.sort()
+    print("\n".join(TopUser)) #prints the TopUser/users on individual lines
+
+     
+#gotta find a way to return back to menu!!!
+
+def Quit(userName, userMap, fileName):
+    '''Saves changes made to the file's content and safely exits the program.'''
+    try:
+        file = open(fileName, 'w')
+        for user in userMap:
+            toSave = str(user) + ':' + ','.join(userMap[user]) + '\n'
+            file.write(toSave)
+        file.close()
+        quit()
+    except FileNotFoundError:
+        file = open(fileName, 'w+')
+        for user in userMap:
+            toSave = str(user) + ':' + ','.join(userMap[user]) + '\n'
+            file.write(toSave)
+        file.close()
+        quit()
+     
+    
+# i think this works but pop up window might not be acceptable
         
   
 def main():
     ''' The main recommendation function '''
 
+    #STARTING CODE SHOULD RUN BEFORE MAIN
     userMap = loadUsers(PREF_FILE)
     print('Welcome to the music recommender')
-    userName = input('Please enter your name. Put a $ symbol after your name if you wish your preferences to remain private ): ')
-    print("Welcome", userName)
+    userName = input('Please enter your name ( put a $ symbol after your name if you wish your preferences to remain private ): ')
+    Check = RunPreferences(userName, userMap)
 
     menuLoop = True
     while menuLoop == True:
@@ -294,17 +333,19 @@ def main():
         'm - Which user has the most likes' '\n'
         'q - Save and quit' '\n ')
         if option == 'e':
-            prefs = getPreferences(userName, userMap)
-        elif option == 'r':
-            getRecommendations()
-        elif option == 'p':
-            mostPopular()
-        elif option == 'h':
-            howPopular()
-        elif option == 'm':
-            mostLikes()
-        else:
-            break
+                prefs = getPreferences(userName, userMap)
+        if option == 'r':
+                Recs = getRecommendations(userName, prefs, userMap)
+        if option == 'p':
+                MVPs = mostPopular()
+        if option == 'h':
+                MVPsCount = howPopular()
+        if option == 'm':
+                SpotifyCamper = MostLikes(userMap)
+        if option == 'q':
+                Terminator = Quit(userName, userMap, PREF_FILE)
 
 if __name__ == "__main__": main()
+
+
 
